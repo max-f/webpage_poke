@@ -4,8 +4,10 @@ import time
 import argparse
 import itertools
 
+from statistics import median
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+import matplotlib.pyplot as plt
 
 
 def main():
@@ -14,15 +16,26 @@ def main():
     args = parser.parse_args()
 
     start_url = args.url
-    timings = create_page_statistics(start_url)
+    timings = calculate_page_load_times(start_url)
+    create_statistics(timings, start_url)
+
+
+def create_statistics(timings, start_url):
     avg_time = sum(timings) / float(len(timings))
-    print('Noiiice!')
-    print(f'Avg time: {avg_time}')
+    median_time = median(timings)
+    n, bins, patches = plt.hist(
+        timings, range=(0, 11), density=True, facecolor='blue', alpha=0.5)
+    plt.xlabel(
+        f'time in seconds\n Avg time: {avg_time:2.3} - Median time: {median_time:2.3}')
+    plt.ylabel('percentage of requests')
+    plt.title(f'Histogram of page loads\n URL: {start_url[:40]}..')
+    plt.subplots_adjust(left=0.15)
+    plt.show()
 
 
-def create_page_statistics(start_url, n=20):
+def calculate_page_load_times(start_url, n=20):
     timings = []
-    query_parameter_creation_pool = 'abcdefg'
+    query_parameter_creation_pool = 'xyz2456'
     browser = webdriver.Firefox()
 
     for i in range(n):
