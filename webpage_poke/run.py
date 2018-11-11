@@ -20,11 +20,14 @@ def main():
     parser.add_argument('-n', '--requests', metavar='N',
                         help='number of requests', type=int, default=20)
     parser.add_argument('-a', '--basic-auth', metavar='USER@PASSWORD',
-                        help='basic auth credentials', type=str)
+                        help='basic auth credentials', type=str, default=None)
+    parser.add_argument('-q', '--query-parameter', metavar='CHARS',
+                        help='string of chars to use for query parameter generation',
+                        type=str, default='abcdef')
     args = parser.parse_args()
 
     url = build_url(args.url, args.basic_auth)
-    timings = calculate_page_load_times(url, args.requests)
+    timings = calculate_page_load_times(url, args.requests, args.query_parameter)
     plot_statistics(timings, args.url)
 
 
@@ -36,10 +39,9 @@ def build_url(url: str, basic_auth: str):
     return url
 
 
-def calculate_page_load_times(url, requests):
-    # type: (str, int) -> List[float]
+def calculate_page_load_times(url, requests, query_parameter_pool):
+    # type: (str, int, str) -> List[float]
     timings = []
-    query_parameter_creation_pool = 'xyz2456'
 
     profile = webdriver.FirefoxProfile()
     profile.set_preference('network.http.phishy-userpass-length', 255)
@@ -49,7 +51,7 @@ def calculate_page_load_times(url, requests):
     for i in range(requests):
         # (n+r-1)! / r! / (n-1)! combinations where r = 7 here
         query_params = list(itertools.combinations_with_replacement(
-            query_parameter_creation_pool, 7))
+            query_parameter_pool, len(query_parameter_pool)))
         # length of query_params should always be > n
         tmp_url = f'{url}?{"".join(query_params[i])}'
         start = time.time()
