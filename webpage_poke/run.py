@@ -68,10 +68,11 @@ def plot_statistics(timings, start_url):
     avg_time = sum(timings) / float(len(timings))
     median_time = median(timings)
     n, bins, patches = plt.hist(
-        timings, range=(0, 11), density=True, facecolor='blue', alpha=0.5)
+        timings, bins=20, color='#607c8e', rwidth=0.9, alpha=0.8)
+    plt.grid(axis='y', alpha=0.75)
     plt.xlabel(
-        f'time in seconds\n Avg time: {avg_time:2.3} - Median time: {median_time:2.3}')
-    plt.ylabel('percentage of requests')
+        f'Time in seconds\n Avg time: {avg_time:2.3} - Median time: {median_time:2.3}')
+    plt.ylabel('Number of requests')
     plt.title(f'Histogram of page loads\n URL: {start_url[:40]}..')
     plt.subplots_adjust(left=0.15)
     plt.show()
